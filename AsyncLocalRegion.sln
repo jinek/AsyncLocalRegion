@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncLocalRegion", "AsyncLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncLocalRegionTests", "AsyncLocalRegionTests\AsyncLocalRegionTests.csproj", "{21857896-346D-47BC-B63C-BE2DCC92543C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{F6C3B32C-2488-406F-B6B1-E12629EB0DCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
