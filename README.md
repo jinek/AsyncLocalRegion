@@ -23,3 +23,8 @@ private static async Task RetrieveValue()
     Console.WriteLine(MyParameter.CurrentValue); 
 }
 ```
+    
+## Install
+```
+dotnet add package AsyncLocalRegion --version 2.1.0.12
+```
