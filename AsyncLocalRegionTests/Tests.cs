@@ -83,6 +83,7 @@ namespace AsyncLocalRegionTests
                                 await AssertValue3();
                                 async Task AssertValue3()
                                 {
+                                    await Task.Yield();
                                     Assert.AreEqual(value3, TestClass.Value.CurrentValue);
                                 }
                             }

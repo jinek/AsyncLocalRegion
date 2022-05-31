@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{F6C3B32C-2
 		.editorconfig = .editorconfig
 		README.md = README.md
 		LICENSE = LICENSE
+		.github\workflows\editorconfig.yml = .github\workflows\editorconfig.yml
+		.github\workflows\general_build.yml = .github\workflows\general_build.yml
 	EndProjectSection
 EndProject
 Global
