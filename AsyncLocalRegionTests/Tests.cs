@@ -159,8 +159,8 @@ namespace AsyncLocalRegionTests
 
         private static class TestClass
         {
-            public static readonly AsyncLocalRegion<int> Value = new AsyncLocalRegion<int>();
-            public static readonly AsyncLocalRegion<int> SecondValue = new AsyncLocalRegion<int>();
+            public static readonly AsyncLocalParameter<int> Value = new AsyncLocalParameter<int>();
+            public static readonly AsyncLocalParameter<int> SecondValue = new AsyncLocalParameter<int>();
         }
     }
 }
