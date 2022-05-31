@@ -81,6 +81,7 @@ namespace AsyncLocalRegionTests
                             using (TestClass.Value.StartRegion(value3))
                             {
                                 await AssertValue3();
+
                                 async Task AssertValue3()
                                 {
                                     await Task.Yield();
