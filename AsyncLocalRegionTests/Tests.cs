@@ -81,8 +81,10 @@ namespace AsyncLocalRegionTests
                             using (TestClass.Value.StartRegion(value3))
                             {
                                 await AssertValue3();
+
                                 async Task AssertValue3()
                                 {
+                                    await Task.Yield();
                                     Assert.AreEqual(value3, TestClass.Value.CurrentValue);
                                 }
                             }
@@ -159,8 +161,8 @@ namespace AsyncLocalRegionTests
 
         private static class TestClass
         {
-            public static readonly AsyncLocalRegion<int> Value = new AsyncLocalRegion<int>();
-            public static readonly AsyncLocalRegion<int> SecondValue = new AsyncLocalRegion<int>();
+            public static readonly AsyncLocalParameter<int> Value = new();
+            public static readonly AsyncLocalParameter<int> SecondValue = new();
         }
     }
 }

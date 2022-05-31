@@ -1,6 +1,6 @@
 # Async Local Region
 
-Manages lifetime of AsyncLocal<T> using IDisposable pattern.
+Control the lifetime of [AsyncLocal<T>](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1) using [IDisposable](https://docs.microsoft.com/en-us/dotnet/api/system.idisposable) pattern.
 
 1) Provide a value while defining a region
 2) Retrieve the value in any of inner Tasks/calls
