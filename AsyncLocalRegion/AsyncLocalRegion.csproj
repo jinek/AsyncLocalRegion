@@ -15,6 +15,7 @@
         <Authors>https://github.com/jinek (Evgeny Gorbovoy)</Authors>
         <Description>Controls the lifetime of AsyncLocal using IDisposable pattern.</Description>
         <PackageTags>AsyncLocal;ThreadStatic;ThreadLocal;IDisposable</PackageTags>
+        <PackageProjectUrl>https://github.com/jinek/AsyncLocalRegion</PackageProjectUrl>
     </PropertyGroup>
 
 </Project>
