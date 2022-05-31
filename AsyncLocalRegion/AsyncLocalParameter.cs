@@ -6,28 +6,10 @@ namespace AsyncLocalRegion
 {
     public sealed class AsyncLocalParameter<T>
     {
-        /// <summary>
-        /// Get the current value
-        /// </summary>
-        /// <param name="parameter">Region for which to get the value</param>
-        /// <exception cref="AsyncLocalRegionException">There is no a parameter currently</exception>
-        /// <returns>Value set for current thread/async flow</returns>
-        public static explicit operator T(AsyncLocalParameter<T> parameter)
-        {
-            return ToT(parameter);
-        }
-        
-        
-        // ReSharper disable once MemberCanBePrivate.Global Need to be public to prevent CA2225
-        public static T ToT(AsyncLocalParameter<T> parameter)
-        {
-            return parameter.CurrentValue;
-        }
-        
         private readonly AsyncLocal<Stack<T>> _currentValue = new AsyncLocal<Stack<T>>();
 
         /// <summary>
-        /// Current value
+        ///     Current value
         /// </summary>
         /// <exception cref="AsyncLocalRegionException">No current parameter defined</exception>
         public T CurrentValue
@@ -40,15 +22,35 @@ namespace AsyncLocalRegion
                 }
                 catch (NullReferenceException nullReferenceException)
                 {
-                    throw new AsyncLocalRegionException("Can not retrieve a value because there is no current parameter",
+                    throw new AsyncLocalRegionException(
+                        "Can not retrieve a value because there is no current parameter",
                         nullReferenceException);
                 }
                 catch (InvalidOperationException invalidOperationException)
                 {
-                    throw new AsyncLocalRegionException("Can not retrieve a value because there is no current parameter",
+                    throw new AsyncLocalRegionException(
+                        "Can not retrieve a value because there is no current parameter",
                         invalidOperationException);
                 }
             }
+        }
+
+        /// <summary>
+        ///     Get the current value
+        /// </summary>
+        /// <param name="parameter">Region for which to get the value</param>
+        /// <exception cref="AsyncLocalRegionException">There is no a parameter currently</exception>
+        /// <returns>Value set for current thread/async flow</returns>
+        public static explicit operator T(AsyncLocalParameter<T> parameter)
+        {
+            return ToT(parameter);
+        }
+
+
+        // ReSharper disable once MemberCanBePrivate.Global Need to be public to prevent CA2225
+        public static T ToT(AsyncLocalParameter<T> parameter)
+        {
+            return parameter.CurrentValue;
         }
 
         /// <summary>
