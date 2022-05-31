@@ -11,8 +11,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <IsPackable>true</IsPackable>
-        <VersionPrefix>1.0.0</VersionPrefix>
+        <IsPackable>true</IsPackable>        
         <Authors>https://github.com/jinek (Evgeny Gorbovoy)</Authors>
         <Description>Controls the lifetime of AsyncLocal using IDisposable pattern.</Description>
         <PackageTags>AsyncLocal;ThreadStatic;ThreadLocal;IDisposable</PackageTags>
