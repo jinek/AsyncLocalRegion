@@ -37,7 +37,7 @@ namespace AsyncLocalRegion
         }
 
         /// <summary>
-        /// Has any region started
+        ///     Has any region started
         /// </summary>
         public bool HasCurrentValue => !(_currentValue.Value == null || _currentValue.Value.Count == 0);
 
@@ -74,8 +74,8 @@ namespace AsyncLocalRegion
 
         private class Region : IDisposable
         {
-            private bool _disposed;
             private readonly AsyncLocalParameter<T> _parent;
+            private bool _disposed;
 
             public Region(AsyncLocalParameter<T> parent)
             {
@@ -94,7 +94,7 @@ namespace AsyncLocalRegion
 
             private void ReleaseResources()
             {
-                _parent._currentValue.Value.Pop();//todo: check poped region is the one
+                _parent._currentValue.Value.Pop(); //todo: check poped region is the one
             }
 
             ~Region()

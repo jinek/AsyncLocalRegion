@@ -159,13 +159,6 @@ namespace AsyncLocalRegionTests
             });
         }
 
-        private static class TestClass
-        {
-            public static readonly AsyncLocalParameter<int> Value = new();
-            public static readonly AsyncLocalParameter<int> SecondValue = new();
-            public static readonly AsyncLocalParameter<int> VeryUntouchedValue = new();
-        }
-
         [Test]
         public void TestHasNoValues()
         {
@@ -180,9 +173,17 @@ namespace AsyncLocalRegionTests
                 Assert.IsFalse(TestClass.SecondValue.HasCurrentValue);
                 Assert.IsFalse(TestClass.Value.HasCurrentValue);
             }
+
             Assert.IsFalse(TestClass.VeryUntouchedValue.HasCurrentValue);
             Assert.IsFalse(TestClass.SecondValue.HasCurrentValue);
             Assert.IsFalse(TestClass.Value.HasCurrentValue);
+        }
+
+        private static class TestClass
+        {
+            public static readonly AsyncLocalParameter<int> Value = new();
+            public static readonly AsyncLocalParameter<int> SecondValue = new();
+            public static readonly AsyncLocalParameter<int> VeryUntouchedValue = new();
         }
     }
 }
