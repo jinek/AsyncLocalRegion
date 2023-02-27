@@ -59,3 +59,4 @@ jobs:
         with:
           branch: ${{ steps.comment-branch.outputs.ref }}
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
