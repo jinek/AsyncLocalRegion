@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsyncLocalRegion
@@ -36,6 +37,11 @@ namespace AsyncLocalRegion
         }
 
         /// <summary>
+        ///     Has any region started
+        /// </summary>
+        public bool HasCurrentValue => !(_currentValue.Value == null || _currentValue.Value.Count == 0);
+
+        /// <summary>
         ///     Get the current value
         /// </summary>
         /// <param name="parameter">Region for which to get the value</param>
@@ -69,21 +75,26 @@ namespace AsyncLocalRegion
         private class Region : IDisposable
         {
             private readonly AsyncLocalParameter<T> _parent;
+            private bool _disposed;
 
             public Region(AsyncLocalParameter<T> parent)
             {
                 _parent = parent;
             }
 
+            [MethodImpl(MethodImplOptions.Synchronized)]
             public void Dispose()
             {
+                if (_disposed)
+                    throw new ObjectDisposedException("Object has been already disposed");
+                _disposed = true;
                 ReleaseResources();
                 GC.SuppressFinalize(this);
             }
 
             private void ReleaseResources()
             {
-                _parent._currentValue.Value.Pop();
+                _parent._currentValue.Value.Pop(); //todo: check poped region is the one
             }
 
             ~Region()
