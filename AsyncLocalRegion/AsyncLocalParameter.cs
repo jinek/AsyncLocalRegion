@@ -97,8 +97,11 @@ namespace AsyncLocalRegion
                 _parent._currentValue.Value.Pop(); //todo: check poped region is the one
             }
 
+            [MethodImpl(MethodImplOptions.Synchronized)]
             ~Region()
             {
+                if (_disposed)
+                    return;
                 ReleaseResources();
             }
         }
