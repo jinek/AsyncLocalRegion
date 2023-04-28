@@ -36,6 +36,7 @@ namespace AsyncLocalRegion
             }
         }
 
+        // todo: concurrent access to HasCurrentValue 
         /// <summary>
         ///     Has any region started
         /// </summary>
@@ -69,17 +70,17 @@ namespace AsyncLocalRegion
             if (_currentValue.Value == null)
                 _currentValue.Value = new Stack<T>(1);
             _currentValue.Value.Push(value);
-            return new Region(this);
+            return new Region(_currentValue.Value);
         }
 
         private class Region : IDisposable
         {
-            private readonly AsyncLocalParameter<T> _parent;
+            private readonly Stack<T> _stack;
             private bool _disposed;
 
-            public Region(AsyncLocalParameter<T> parent)
+            public Region(Stack<T> stack)
             {
-                _parent = parent;
+                _stack = stack;
             }
 
             [MethodImpl(MethodImplOptions.Synchronized)]
@@ -94,7 +95,7 @@ namespace AsyncLocalRegion
 
             private void ReleaseResources()
             {
-                _parent._currentValue.Value.Pop(); //todo: check poped region is the one
+                _stack.Pop();
             }
 
             [MethodImpl(MethodImplOptions.Synchronized)]
