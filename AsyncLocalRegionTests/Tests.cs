@@ -61,15 +61,6 @@ public class Tests
         var releaseFirst = new TaskCompletionSource<bool>();
         var releaseSecond = new TaskCompletionSource<bool>();
 
-        async Task<int> ReadInRegion(int value, Task release)
-        {
-            using (parameter.StartRegion(value))
-            {
-                await release;
-                return parameter.CurrentValue;
-            }
-        }
-
         using (parameter.StartRegion(30))
         {
             var first = ReadInRegion(40, releaseFirst.Task);
@@ -95,6 +86,16 @@ public class Tests
         }
 
         Assert.IsFalse(parameter.HasCurrentValue);
+        return;
+
+        async Task<int> ReadInRegion(int value, Task release)
+        {
+            using (parameter.StartRegion(value))
+            {
+                await release;
+                return parameter.CurrentValue;
+            }
+        }
     }
 
     [Test]
