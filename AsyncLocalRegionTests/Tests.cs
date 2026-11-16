@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AsyncLocalRegion;
 using NUnit.Framework;
@@ -6,6 +7,67 @@ namespace AsyncLocalRegionTests
 {
     public class Tests
     {
+        [Test]
+        public async Task OverlappingAsyncRegionsKeepTheirOwnValues()
+        {
+            var parameter = new AsyncLocalParameter<int>();
+            var releaseFirst = new TaskCompletionSource<bool>();
+            var releaseSecond = new TaskCompletionSource<bool>();
+
+            async Task<int> ReadInRegion(int value, Task release)
+            {
+                using (parameter.StartRegion(value))
+                {
+                    await release;
+                    return parameter.CurrentValue;
+                }
+            }
+
+            using (parameter.StartRegion(30))
+            {
+                var first = ReadInRegion(40, releaseFirst.Task);
+                var second = ReadInRegion(50, releaseSecond.Task);
+                try
+                {
+                    Assert.AreEqual(30, parameter.CurrentValue);
+                    // Finish the first branch while the second scope is still open.
+                    releaseFirst.SetResult(true);
+                    Assert.AreEqual(40, await first);
+                    Assert.AreEqual(30, parameter.CurrentValue);
+
+                    releaseSecond.SetResult(true);
+                    Assert.AreEqual(50, await second);
+                    Assert.AreEqual(30, parameter.CurrentValue);
+                }
+                finally
+                {
+                    releaseFirst.TrySetResult(true);
+                    releaseSecond.TrySetResult(true);
+                    await Task.WhenAll(first, second);
+                }
+            }
+
+            Assert.IsFalse(parameter.HasCurrentValue);
+        }
+
+        [Test]
+        public void DisposingOuterRegionFirstLeavesInnerRegionIntact()
+        {
+            var parameter = new AsyncLocalParameter<int>();
+            using (var outer = parameter.StartRegion(30))
+            {
+                using (parameter.StartRegion(40))
+                {
+                    Assert.Throws<InvalidOperationException>(() => outer.Dispose());
+                    Assert.AreEqual(40, parameter.CurrentValue);
+                }
+
+                Assert.AreEqual(30, parameter.CurrentValue);
+            }
+
+            Assert.IsFalse(parameter.HasCurrentValue);
+        }
+
         [Test]
         public void TestCast()
         {

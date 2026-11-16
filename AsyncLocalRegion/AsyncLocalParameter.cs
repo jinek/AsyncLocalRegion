@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsyncLocalRegion
 {
     public sealed class AsyncLocalParameter<T>
     {
-        private readonly AsyncLocal<Stack<T>> _currentValue = new AsyncLocal<Stack<T>>();
+        private readonly AsyncLocal<Region> _currentValue = new AsyncLocal<Region>();
 
         /// <summary>
         ///     Current value
@@ -17,30 +15,19 @@ namespace AsyncLocalRegion
         {
             get
             {
-                try
-                {
-                    return _currentValue.Value.Peek();
-                }
-                catch (NullReferenceException nullReferenceException)
-                {
+                var region = _currentValue.Value;
+                if (region == null)
                     throw new AsyncLocalRegionException(
-                        "Can not retrieve a value because there is no current parameter",
-                        nullReferenceException);
-                }
-                catch (InvalidOperationException invalidOperationException)
-                {
-                    throw new AsyncLocalRegionException(
-                        "Can not retrieve a value because there is no current parameter",
-                        invalidOperationException);
-                }
+                        "Can not retrieve a value because there is no current parameter");
+
+                return region.Value;
             }
         }
 
-        // todo: concurrent access to HasCurrentValue 
         /// <summary>
         ///     Has any region started
         /// </summary>
-        public bool HasCurrentValue => !(_currentValue.Value == null || _currentValue.Value.Count == 0);
+        public bool HasCurrentValue => _currentValue.Value != null;
 
         /// <summary>
         ///     Get the current value
@@ -67,43 +54,36 @@ namespace AsyncLocalRegion
         /// <returns>Returns the parameter. Dispose it to revert to previous value</returns>
         public IDisposable StartRegion(T value)
         {
-            if (_currentValue.Value == null)
-                _currentValue.Value = new Stack<T>(1);
-            _currentValue.Value.Push(value);
-            return new Region(_currentValue.Value);
+            var region = new Region(_currentValue, value);
+            // Assign a new head for this flow instead of mutating a shared stack.
+            _currentValue.Value = region;
+            return region;
         }
 
         private class Region : IDisposable
         {
-            private readonly Stack<T> _stack;
+            private readonly AsyncLocal<Region> _currentValue;
+            private readonly Region _previous;
             private bool _disposed;
 
-            public Region(Stack<T> stack)
+            public Region(AsyncLocal<Region> currentValue, T value)
             {
-                _stack = stack;
+                _currentValue = currentValue;
+                _previous = currentValue.Value;
+                Value = value;
             }
 
-            [MethodImpl(MethodImplOptions.Synchronized)]
+            public T Value { get; }
+
             public void Dispose()
             {
                 if (_disposed)
                     throw new ObjectDisposedException("Object has been already disposed");
+                if (!ReferenceEquals(_currentValue.Value, this))
+                    throw new InvalidOperationException("Regions must be disposed in reverse order of creation");
+
+                _currentValue.Value = _previous;
                 _disposed = true;
-                ReleaseResources();
-                GC.SuppressFinalize(this);
-            }
-
-            private void ReleaseResources()
-            {
-                _stack.Pop();
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            ~Region()
-            {
-                if (_disposed)
-                    return;
-                ReleaseResources();
             }
         }
     }
