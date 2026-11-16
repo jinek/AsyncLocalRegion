@@ -15,11 +15,8 @@ namespace AsyncLocalRegion
         {
             get
             {
-                var region = _currentValue.Value;
-                if (region == null)
-                    throw new AsyncLocalRegionException(
+                Region region = _currentValue.Value?.GetLiveRegion() ?? throw new AsyncLocalRegionException(
                         "Can not retrieve a value because there is no current parameter");
-
                 return region.Value;
             }
         }
@@ -27,7 +24,7 @@ namespace AsyncLocalRegion
         /// <summary>
         ///     Has any region started
         /// </summary>
-        public bool HasCurrentValue => _currentValue.Value != null;
+        public bool HasCurrentValue => _currentValue.Value?.GetLiveRegion() != null;
 
         /// <summary>
         ///     Get the current value
@@ -64,7 +61,7 @@ namespace AsyncLocalRegion
         {
             private readonly AsyncLocal<Region> _currentValue;
             private readonly Region _previous;
-            private bool _disposed;
+            private volatile bool _disposed;
 
             public Region(AsyncLocal<Region> currentValue, T value)
             {
@@ -74,6 +71,15 @@ namespace AsyncLocalRegion
             }
 
             public T Value { get; }
+
+            public Region GetLiveRegion()
+            {
+                Region region = this;
+                // Captured contexts can retain a head after its scope has ended.
+                while (region != null && region._disposed)
+                    region = region._previous;
+                return region;
+            }
 
             public void Dispose()
             {

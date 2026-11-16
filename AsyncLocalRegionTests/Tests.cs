@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AsyncLocalRegion;
 using NUnit.Framework;
@@ -7,6 +8,50 @@ namespace AsyncLocalRegionTests
 {
     public class Tests
     {
+        [Test]
+        public void CapturedContextDoesNotExposeDisposedRegion()
+        {
+            var parameter = new AsyncLocalParameter<int>();
+            ExecutionContext context;
+            using (parameter.StartRegion(30))
+            {
+                context = ExecutionContext.Capture();
+            }
+
+            ExecutionContext.Run(context, _ =>
+            {
+                Assert.IsFalse(parameter.HasCurrentValue);
+                Assert.Throws<AsyncLocalRegionException>(() => { int value = parameter.CurrentValue; });
+            }, null);
+        }
+
+        [Test]
+        public void CapturedContextResolvesNearestLiveRegion()
+        {
+            var parameter = new AsyncLocalParameter<int>();
+            ExecutionContext context;
+            using (parameter.StartRegion(10))
+            {
+                using (parameter.StartRegion(30))
+                {
+                    context = ExecutionContext.Capture();
+                }
+
+                ExecutionContext.Run(context, _ =>
+                {
+                    Assert.IsTrue(parameter.HasCurrentValue);
+                    Assert.AreEqual(10, parameter.CurrentValue);
+                }, null);
+            }
+
+            // The same captured context must also skip both regions once both have ended.
+            ExecutionContext.Run(context, _ =>
+            {
+                Assert.IsFalse(parameter.HasCurrentValue);
+                Assert.Throws<AsyncLocalRegionException>(() => { int value = parameter.CurrentValue; });
+            }, null);
+        }
+
         [Test]
         public async Task OverlappingAsyncRegionsKeepTheirOwnValues()
         {
