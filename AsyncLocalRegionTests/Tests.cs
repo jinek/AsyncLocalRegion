@@ -101,15 +101,20 @@ public class Tests
     public void DisposingOuterRegionFirstLeavesInnerRegionIntact()
     {
         var parameter = new AsyncLocalParameter<int>();
-        using (IDisposable outer = parameter.StartRegion(30))
+        IDisposable outer = parameter.StartRegion(30);
+        try
         {
             using (parameter.StartRegion(40))
             {
-                Assert.Throws<InvalidOperationException>(() => outer.Dispose());
+                Assert.Throws<InvalidOperationException>(outer.Dispose);
                 Assert.AreEqual(40, parameter.CurrentValue);
             }
 
             Assert.AreEqual(30, parameter.CurrentValue);
+        }
+        finally
+        {
+            outer.Dispose();
         }
 
         Assert.IsFalse(parameter.HasCurrentValue);

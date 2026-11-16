@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      RESHARPER_VERSION: '2026.1.0.1'
+      RESHARPER_VERSION: '2026.3.0'
     # from https://github.com/marketplace/actions/dotnet-format
     steps:
       - name: Get branch info # todo: is this needed?
