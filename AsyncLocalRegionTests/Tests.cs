@@ -15,13 +15,14 @@ namespace AsyncLocalRegionTests
             ExecutionContext context;
             using (parameter.StartRegion(30))
             {
-                context = ExecutionContext.Capture();
+                context = ExecutionContext.Capture()
+                    ?? throw new InvalidOperationException("Execution context flow is suppressed");
             }
 
             ExecutionContext.Run(context, _ =>
             {
                 Assert.IsFalse(parameter.HasCurrentValue);
-                Assert.Throws<AsyncLocalRegionException>(() => { int value = parameter.CurrentValue; });
+                Assert.That(() => parameter.CurrentValue, Throws.TypeOf<AsyncLocalRegionException>());
             }, null);
         }
 
@@ -34,7 +35,8 @@ namespace AsyncLocalRegionTests
             {
                 using (parameter.StartRegion(30))
                 {
-                    context = ExecutionContext.Capture();
+                    context = ExecutionContext.Capture()
+                        ?? throw new InvalidOperationException("Execution context flow is suppressed");
                 }
 
                 ExecutionContext.Run(context, _ =>
@@ -48,7 +50,7 @@ namespace AsyncLocalRegionTests
             ExecutionContext.Run(context, _ =>
             {
                 Assert.IsFalse(parameter.HasCurrentValue);
-                Assert.Throws<AsyncLocalRegionException>(() => { int value = parameter.CurrentValue; });
+                Assert.That(() => parameter.CurrentValue, Throws.TypeOf<AsyncLocalRegionException>());
             }, null);
         }
 
