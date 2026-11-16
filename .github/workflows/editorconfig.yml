@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      RESHARPER_VERSION: '2026.3.0'
     # from https://github.com/marketplace/actions/dotnet-format
     steps:
       - name: Get branch info # todo: is this needed?
@@ -24,21 +26,24 @@ jobs:
           persist-credentials: false
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        id: setup-dotnet
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 5.0.x
+          dotnet-version: 10.0.x
           
       - name: Restore
         run: dotnet restore
         
       - name: Inspect code
-        uses: muno92/resharper_inspectcode@1.4.0
+        uses: muno92/resharper_inspectcode@1.17.1
         with:
           solutionPath: ./AsyncLocalRegion.sln
+          version: ${{ env.RESHARPER_VERSION }}
+          dotnetVersion: ${{ steps.setup-dotnet.outputs.dotnet-version }}
 
       - name: install-resharper
         run: |
-          dotnet tool install -g JetBrains.ReSharper.GlobalTools
+          dotnet tool install -g JetBrains.ReSharper.GlobalTools --version "$RESHARPER_VERSION"
         continue-on-error: true # todo: need to check whether has changes
 
       - name: resharper-cleanup
